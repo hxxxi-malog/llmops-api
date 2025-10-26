@@ -3,6 +3,6 @@
 @Auth : maloghx@outlook.com
 @File : database_extension.py
 """
-from flask_sqlalchemy import SQLAlchemy
+from pkg.sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()

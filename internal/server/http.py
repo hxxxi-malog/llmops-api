@@ -4,12 +4,13 @@
 @File : http.py
 """
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
 from config import Config
+from internal.model import App
 from internal.router import Router
 from internal.exception import CustomException
 from pkg.response import Response, json, HttpCode
+from pkg.sqlalchemy import SQLAlchemy
 
 
 class Http(Flask):
@@ -25,6 +26,9 @@ class Http(Flask):
 
         # 初始化flask拓展
         db.init_app(self)
+        with self.app_context():
+            _ = App
+            db.create_all()
 
         # 注册应用录路由
         router.register_router(self)

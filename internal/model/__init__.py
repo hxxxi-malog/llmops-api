@@ -3,3 +3,9 @@
 @Auth : maloghx@outlook.com
 @File : __init__.py.py
 """
+
+from .app import App
+
+__all__ = [
+    "App",
+]
