@@ -4,6 +4,7 @@
 @File : http.py
 """
 from flask import Flask
+from flask_migrate import Migrate
 
 from config import Config
 from internal.model import App
@@ -16,7 +17,15 @@ from pkg.sqlalchemy import SQLAlchemy
 class Http(Flask):
     """Http 服务引擎"""
 
-    def __init__(self, *args, conf: Config, db: SQLAlchemy, router: Router, **kwargs):
+    def __init__(
+            self,
+            *args,
+            conf: Config,
+            db: SQLAlchemy,
+            migrate: Migrate,
+            router: Router,
+            **kwargs
+    ):
         super().__init__(*args, **kwargs)
         # 从配置对象中加载应用配置
         self.config.from_object(conf)
@@ -26,9 +35,7 @@ class Http(Flask):
 
         # 初始化flask拓展
         db.init_app(self)
-        with self.app_context():
-            _ = App
-            db.create_all()
+        migrate.init_app(self, db, directory="internal/migration")
 
         # 注册应用录路由
         router.register_router(self)
