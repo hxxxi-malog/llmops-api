@@ -7,6 +7,7 @@ import os
 
 from openai import OpenAI
 
+from internal.exception import FailException
 from internal.schema.app_schema import CompletionReq
 from pkg.response import success_json, valid_error_json
 
@@ -36,4 +37,5 @@ class AppHandler:
 
     def ping(self):
         """服务器测试接口"""
-        return {"ping": "pong"}
+        raise FailException("服务器测试接口")
+        # return {"ping": "pong"}
