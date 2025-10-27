@@ -3,17 +3,19 @@
 @Auth : maloghx@outlook.com
 @File : app_handler.py
 """
-import os
 import uuid
 from dataclasses import dataclass
 
 from injector import inject
-from openai import OpenAI
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
 
 from internal.exception import FailException
 from internal.schema.app_schema import CompletionReq
 from internal.service.app_service import AppService
 from pkg.response import success_json, valid_error_json, success_message
+
 
 @inject
 @dataclass
@@ -41,22 +43,26 @@ class AppHandler:
 
     def completion(self):
         """聊天接口"""
+
+        # 创建请求对象并验证参数
         req = CompletionReq()
         if not req.validate():
             return valid_error_json(req.errors)
 
-        client = OpenAI(base_url=os.getenv("OPENAI_API_BASE"))
+        # 创建聊天提示模板，使用{query}作为占位符
+        prompt = ChatPromptTemplate.from_template("{query}")
+        # 初始化ChatOpenAI模型，指定使用qwen3-max模型
+        llm = ChatOpenAI(model="qwen3-max")
+        # 创建字符串输出解析器，用于解析模型输出
+        parser = StrOutputParser()
 
-        completion = client.chat.completions.create(
-            model="qwen3-max",
-            messages=[
-                {'role': 'system', 'content': '你是Malog开发的AI助手'},
-                {'role': 'user', 'content': req.query.data}
-            ]
-        )
+        # 构建处理链：提示模板 -> LLM模型 -> 输出解析器
+        chain = prompt | llm | parser
 
-        content = completion.choices[0].message.content
+        # 执行链式调用，传入查询数据并获取处理结果
+        content = chain.invoke({"query": req.query.data})
 
+        # 返回成功响应
         return success_json({"content": content})
 
     def ping(self):
