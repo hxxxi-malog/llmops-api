@@ -50,8 +50,15 @@ class AppHandler:
         if not req.validate():
             return valid_error_json(req.errors)
 
-        # 创建聊天提示模板，使用{query}作为占位符
-        prompt = ChatPromptTemplate.from_template("{query}")
+        system = """
+        你是由Malog开发的AI人工智能助手，热心回答一切知道的问题。
+        """
+
+        # 创建聊天提示模板，使用系统提示词和用户查询
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system),
+            ("user", "{query}")
+        ])
         # 初始化ChatOpenAI模型，指定使用qwen3-max模型
         llm = ChatOpenAI(model="qwen3-max")
         # 创建字符串输出解析器，用于解析模型输出
