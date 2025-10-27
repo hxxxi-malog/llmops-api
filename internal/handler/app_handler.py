@@ -7,6 +7,7 @@ import uuid
 from dataclasses import dataclass
 
 from injector import inject
+from uuid import UUID
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
@@ -41,7 +42,7 @@ class AppHandler:
         # 可根据需求补充返回信息，例如返回删除成功的提示
         return success_message(f"应用已成功删除，id为{app.id}")
 
-    def completion(self):
+    def debug(self, app_id: UUID):
         """聊天接口"""
 
         # 创建请求对象并验证参数
